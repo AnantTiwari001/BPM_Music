@@ -50,13 +50,13 @@ export async function getSpotifyTokensFromCode(code: string) {
     redirect_uri: spotify_redirect_uri,
   };
 
-  let formBody: any = [];
+  let formBody: string[] = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
     var encodedValue = encodeURIComponent(details[property]);
     formBody.push(encodedKey + '=' + encodedValue);
   }
-  formBody = formBody.join('&');
+  const formBodyString = formBody.join('&');
 
   try {
     const response = await fetch('https://accounts.spotify.com/api/token', {
@@ -65,7 +65,7 @@ export async function getSpotifyTokensFromCode(code: string) {
         Authorization: 'Basic ' + authBuffer,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formBody,
+      body: formBodyString,
     });
     return await response.json();
   } catch (err) {

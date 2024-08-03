@@ -10,6 +10,7 @@ import {Linking, Text, View} from 'react-native';
 import LoginScreen from './src/Screens/LoginScreen';
 import {getCodeFromUri, getSpotifyTokensFromCode} from './src/helpers/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {LocalStorageKeys} from './src/constants';
 
 function App(): React.JSX.Element {
   // DeepLinking / app opened with link
@@ -23,8 +24,14 @@ function App(): React.JSX.Element {
       console.log(authObject);
       if (authObject.access_token && authObject.refresh_token) {
         console.log('exists!!');
-        AsyncStorage.setItem('SpotifyRefreshToken', authObject.refresh_token);
-        AsyncStorage.setItem('SpotifyAccessToken', authObject.access_token);
+        AsyncStorage.setItem(
+          LocalStorageKeys.spotifyRefreshToken,
+          authObject.refresh_token,
+        );
+        AsyncStorage.setItem(
+          LocalStorageKeys.spotifyAcessToken,
+          authObject.access_token,
+        );
       }
     }
   });
