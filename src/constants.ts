@@ -1,4 +1,4 @@
 export const LocalStorageKeys = {
   spotifyAcessToken: 'SpotifyAccessToken',
-  spotifyRefreshToken: 'SpotifyAccessToken',
+  spotifyRefreshToken: 'SpotifyRefreshToken',
 };
