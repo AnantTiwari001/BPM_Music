@@ -40,16 +40,46 @@ export function getCodeFromUri(redirect_uri: string) {
   return queryParamObj;
 }
 
+const authBuffer = Buffer.from(
+  spotify_client_id + ':' + spotify_client_secret,
+).toString('base64');
 export async function getSpotifyTokensFromCode(code: string) {
-  const authBuffer = Buffer.from(
-    spotify_client_id + ':' + spotify_client_secret,
-  ).toString('base64');
   const details: any = {
     grant_type: 'authorization_code',
     code: code,
     redirect_uri: spotify_redirect_uri,
   };
 
+  let formBody: string[] = [];
+  for (var property in details) {
+    var encodedKey = encodeURIComponent(property);
+    var encodedValue = encodeURIComponent(details[property]);
+    formBody.push(encodedKey + '=' + encodedValue);
+  }
+  const formBodyString = formBody.join('&');
+
+  try {
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Basic ' + authBuffer,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formBodyString,
+    });
+    return await response.json();
+  } catch (err) {
+    console.error('err: ', err);
+  }
+}
+
+export async function refreshSpotifyAccessToken(refreshToken: string) {
+  const details: any = {
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+    client_id: spotify_client_id,
+  };
+  console.log('auth: ', authBuffer);
   let formBody: string[] = [];
   for (var property in details) {
     var encodedKey = encodeURIComponent(property);
