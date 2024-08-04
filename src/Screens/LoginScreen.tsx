@@ -15,7 +15,6 @@ export default function LoginScreen() {
     <View>
       <Text>Login in to Spotify</Text>
       <Button title="Login" onPress={handleLogin} />
-      <Button title="rough" onPress={async () => {}} />
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import {TrackObject} from '../Types';
 
-export async function GetSpotifyPlaylists(
+export async function GetSpotifyPlaylistsIds(
   accessToken: string,
   limit = 30,
   offset = 0,
@@ -18,8 +18,9 @@ export async function GetSpotifyPlaylists(
       },
     });
     if (response.ok) {
-      console.log(response);
-      return await response.json();
+      //   console.log(response);
+      const responseObj = await response.json();
+      return responseObj.items.map((item: {id: string}) => item.id) as string[];
     }
   } catch (error) {
     console.error(error);
@@ -45,7 +46,7 @@ export async function GetSpotifyFavoriteSongs(
       },
     });
     if (response.ok) {
-      //   console.log(response);
+      // console.log(response);
       return await response.json();
     }
   } catch (error) {
@@ -54,20 +55,29 @@ export async function GetSpotifyFavoriteSongs(
   return undefined;
 }
 
-export async function getSpotifyPlaylist(
+export async function getSpotifyPlaylistTrackIds(
   accessToken: string,
   playlistId: string,
+  limit = 30,
+  offset = 0,
 ) {
   const url = 'https://api.spotify.com/v1/playlists';
+  const queryProps = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+  });
   try {
-    const response = await fetch(`${url}/${playlistId}`, {
+    const response = await fetch(`${url}/${playlistId}/tracks?${queryProps}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
     if (response.ok) {
-      return await response.json();
+      const responseObj = await response.json();
+      return responseObj.items.map(
+        (item: {track: {id: string}}) => item.track.id,
+      );
     }
   } catch (error) {
     console.error(error);
