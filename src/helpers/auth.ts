@@ -1,5 +1,5 @@
 const scope =
-  'streaming user-read-email user-read-private user-read-currently-playing user-read-recently-played user-read-playback-state user-top-read user-modify-playback-state';
+  'streaming user-read-email user-read-private user-read-currently-playing user-read-recently-played user-read-playback-state user-top-read user-modify-playback-state user-library-read';
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID as string;
 const spotify_client_secret = process.env.SPOTIFY_SECRET_KEY as string;
 const spotify_redirect_uri = 'bpm://callback';
