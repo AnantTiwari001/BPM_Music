@@ -14,6 +14,7 @@ import {LocalStorageKeys} from '../constants';
 import {TrackObject} from '../Types';
 
 export default function FetchUserTracks() {
+  const TrackPromiseArr: Promise<TrackObject>[] = [];
   async function getSpotifyTrackWithbpm() {
     const spotifyAcessToken = await AsyncStorage.getItem(
       LocalStorageKeys.spotifyAcessToken,
@@ -22,35 +23,42 @@ export default function FetchUserTracks() {
       return undefined;
     }
     console.log('function to get tracks with bpm ');
-    // console.log('Getting Spotify ');
-    GetSpotifyFavoriteSongs(spotifyAcessToken, 50).then(result => {
-      if (!result) {
-        console.error('error fetching liked songs');
-        return undefined;
-      }
-      for (let index = 0; index < result.items.length; index++) {
-        const trackItem = result.items[index];
-        // console.log(trackItem.track.name, trackItem.track.id);
-        handleTrack(trackItem.track.id, spotifyAcessToken);
-      }
-    });
-    GetSpotifyPlaylistsIds(spotifyAcessToken, 50).then(result => {
-      // console.log(result);
-      if (!result) {
-        console.error('error fetching playlists');
-        return undefined;
-      }
-      for (let index = 0; index < result.length; index++) {
-        const element = result[index];
-        getSpotifyPlaylistTrackIds(spotifyAcessToken, element).then(
-          trackIdsResult => {
-            // console.log('playlist Obj', trackIdsResult);
-            trackIdsResult.forEach((trackId: string) => {
-              handleTrack(trackId, spotifyAcessToken);
-            });
-          },
-        );
-      }
+
+    Promise.all([
+      GetSpotifyFavoriteSongs(spotifyAcessToken, 50).then(result => {
+        if (!result) {
+          console.error('error fetching liked songs');
+          return undefined;
+        }
+        for (let index = 0; index < result.items.length; index++) {
+          const trackItem = result.items[index];
+          // console.log(trackItem.track.name, trackItem.track.id);
+          TrackPromiseArr.push(
+            handleTrack(trackItem.track.id, spotifyAcessToken),
+          );
+        }
+      }),
+      GetSpotifyPlaylistsIds(spotifyAcessToken, 50).then(async result => {
+        // console.log(result);
+        if (!result) {
+          console.error('error fetching playlists');
+          return undefined;
+        }
+        for (let index = 0; index < result.length; index++) {
+          const element = result[index];
+          await getSpotifyPlaylistTrackIds(spotifyAcessToken, element).then(
+            trackIdsResult => {
+              // console.log('playlist Obj', trackIdsResult);
+              trackIdsResult.forEach((trackId: string) => {
+                TrackPromiseArr.push(handleTrack(trackId, spotifyAcessToken));
+              });
+            },
+          );
+        }
+      }),
+    ]).then(() => {
+      console.log(TrackPromiseArr);
+      Promise.all(TrackPromiseArr).then(() => console.info('done all'));
     });
   }
 
