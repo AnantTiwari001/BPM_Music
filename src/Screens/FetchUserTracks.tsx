@@ -15,6 +15,7 @@ import {TrackObject} from '../Types';
 
 export default function FetchUserTracks() {
   const TrackPromiseArr: Promise<TrackObject>[] = [];
+  const tracksArr: TrackObject[] = [];
   async function getSpotifyTrackWithbpm() {
     const spotifyAcessToken = await AsyncStorage.getItem(
       LocalStorageKeys.spotifyAcessToken,
@@ -58,7 +59,10 @@ export default function FetchUserTracks() {
       }),
     ]).then(() => {
       console.log(TrackPromiseArr);
-      Promise.all(TrackPromiseArr).then(() => console.info('done all'));
+      Promise.all(TrackPromiseArr).then(() => {
+        console.info('done all! Saving the Tracks to Store');
+        setTracksToStore(tracksArr);
+      });
     });
   }
 
@@ -76,9 +80,14 @@ export default function FetchUserTracks() {
       bpm: bpmResponse,
     } as TrackObject;
     console.log('trackObj: ', trackObj);
+    tracksArr.push(trackObj);
 
     return trackObj;
   }
+  const setTracksToStore = async (newtracksArr: TrackObject[]) => {
+    const stringifiedTrackArr = JSON.stringify(newtracksArr);
+    await AsyncStorage.setItem(LocalStorageKeys.tracks, stringifiedTrackArr);
+  };
   return (
     <View>
       <Text>pulling all favorite and playlisted track from spotify</Text>
