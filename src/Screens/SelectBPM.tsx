@@ -34,7 +34,7 @@ export default function SelectBPM() {
       console.error('no Saved Tracks present');
       return;
     }
-    const savedTracksObj = await JSON.parse(tracksString);
+    const savedTracksObj = uniqueTrackArr(await JSON.parse(tracksString));
     getHighLowBpmValue(savedTracksObj);
     storedTrackArr.current = savedTracksObj;
     setTracks(savedTracksObj);
@@ -46,6 +46,19 @@ export default function SelectBPM() {
     // console.log('sorted: ', tempTracks);
     setLowestAvailbleBpm(tempTracks[0].bpm);
     setHighestAvailbleBpm(tempTracks[tempTracks.length - 1].bpm);
+  };
+
+  const uniqueTrackArr = (trackArr: TrackObject[]) => {
+    for (let index = 0; index < trackArr.length; index++) {
+      const element = trackArr[index];
+      for (let i = index + 1; i < trackArr.length; i++) {
+        if (element.id === trackArr[i].id) {
+          console.log('they both matches: ', element);
+          trackArr.splice(index, 1);
+        }
+      }
+    }
+    return trackArr;
   };
 
   useEffect(() => {
