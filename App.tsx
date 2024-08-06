@@ -11,6 +11,8 @@ import LoginScreen from './src/Screens/LoginScreen';
 import {getCodeFromUri, getSpotifyTokensFromCode} from './src/helpers/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {LocalStorageKeys} from './src/constants';
+import SelectBPM from './src/Screens/SelectBPM';
+import {getCurrentUserId} from './src/helpers/SpotifyApiCalls';
 
 function App(): React.JSX.Element {
   // DeepLinking / app opened with link
@@ -33,8 +35,19 @@ function App(): React.JSX.Element {
           authObject.access_token,
         );
       }
+      storeUserId(authObject.access_token);
     }
   });
+  const storeUserId = async (authToken: string) => {
+    console.log('getting current user info');
+    const userId = await getCurrentUserId(authToken);
+    if (!userId) {
+      console.log('something went wrong getting the userId');
+      return undefined;
+    }
+    console.log('userId: ', userId);
+    AsyncStorage.setItem(LocalStorageKeys.userId, userId);
+  };
   useEffect(() => {
     return () => {
       Linking.removeAllListeners('url');
@@ -44,6 +57,8 @@ function App(): React.JSX.Element {
     <View>
       <Text>Hello World</Text>
       <LoginScreen />
+      {/* <FetchUserTracks /> */}
+      <SelectBPM />
     </View>
   );
 }

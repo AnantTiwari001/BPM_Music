@@ -136,3 +136,23 @@ export async function getSpotifyTrackInfo(
   }
   return undefined;
 }
+
+export async function getCurrentUserId(accessToken: string) {
+  const url = 'https://api.spotify.com/v1/me';
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    if (response.ok) {
+      const responseObj = await response.json();
+      const userId: string = responseObj.id;
+      return userId;
+    }
+  } catch (err) {
+    console.error(err);
+    return undefined;
+  }
+}
