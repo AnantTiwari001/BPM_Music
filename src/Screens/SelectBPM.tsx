@@ -2,9 +2,18 @@
 // This is the main page where one can select the songs of the particular BPM
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useRef, useState} from 'react';
-import {Button, Image, ScrollView, Text, TextInput, View} from 'react-native';
+import {
+  Button,
+  Image,
+  Linking,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import {LocalStorageKeys} from '../constants';
 import {TrackObject} from '../Types';
+import {addItemsToPlaylist, createPlaylist} from '../helpers/SpotifyApiCalls';
 
 const bpmBuffer = 30; // bpm +/- the target value is accepted
 
@@ -61,6 +70,32 @@ export default function SelectBPM() {
     return trackArr;
   };
 
+  const handleCreatePlaylist = async () => {
+    console.log('Trying to create playlist');
+    const accessToken = await AsyncStorage.getItem(
+      LocalStorageKeys.spotifyAcessToken,
+    );
+    const userId = await AsyncStorage.getItem(LocalStorageKeys.userId);
+    if (!accessToken || !userId) {
+      console.error('spotify accessToken or userId is missing');
+      return undefined;
+    }
+    const playlistResponse = await createPlaylist(accessToken, userId);
+    console.log(playlistResponse);
+    if (!playlistResponse || !playlistResponse.id) {
+      console.error('something went wrong creating the playlist');
+      return undefined;
+    }
+    console.log('playlist created: ', playlistResponse);
+    const trackIds: string[] = tracks.map(item => `spotify:track:${item.id}`);
+    const addedItem = await addItemsToPlaylist(
+      accessToken,
+      playlistResponse?.id,
+      trackIds,
+    );
+    console.log('added Items to playlist: ', addedItem);
+  };
+
   useEffect(() => {
     getSavedTracks();
   }, []);
@@ -80,6 +115,15 @@ export default function SelectBPM() {
       <Text>Highest Available Value: {highestAvailbleBpm}</Text>
       <Text>Lowest Available Value: {lowestAvailbleBpm}</Text>
       <Button title="Search" onPress={handleBPmSearch} />
+      {storedTrackArr.current.length > tracks.length && (
+        <Button
+          title="Create Playlist"
+          onPress={async () => {
+            console.log('here! cmon!!');
+            handleCreatePlaylist();
+          }}
+        />
+      )}
       <View>
         <Text>all Track Items</Text>
         {tracks.map(item => (
