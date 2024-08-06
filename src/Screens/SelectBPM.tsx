@@ -6,6 +6,7 @@ import {
   Button,
   Image,
   Linking,
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -23,6 +24,10 @@ export default function SelectBPM() {
   const [lowestAvailbleBpm, setLowestAvailbleBpm] = useState(0);
   const storedTrackArr = useRef<TrackObject[]>([]);
   const [tracks, setTracks] = useState<TrackObject[]>([]);
+  const [createdPlaylist, setCreatedPlaylist] = useState<
+    {id: string; uri: string} | undefined
+  >(undefined);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const handleBPmSearch = () => {
     console.log('filtering the item with not desired bpm');
     setTracks(
@@ -71,6 +76,7 @@ export default function SelectBPM() {
   };
 
   const handleCreatePlaylist = async () => {
+    setCreatedPlaylist(undefined);
     console.log('Trying to create playlist');
     const accessToken = await AsyncStorage.getItem(
       LocalStorageKeys.spotifyAcessToken,
@@ -94,53 +100,97 @@ export default function SelectBPM() {
       trackIds,
     );
     console.log('added Items to playlist: ', addedItem);
+    setCreatedPlaylist({id: playlistResponse.id, uri: playlistResponse.uri});
   };
 
   useEffect(() => {
     getSavedTracks();
   }, []);
   return (
-    <ScrollView>
-      <Text>Select Songs of particular BPM</Text>
-      <TextInput
-        inputMode="decimal"
-        value={bpm.toString()}
-        onChangeText={text => {
-          setBpm(text);
-          if (text.length === 0) {
-            setBpm('');
-          }
-        }}
-      />
-      <Text>Highest Available Value: {highestAvailbleBpm}</Text>
-      <Text>Lowest Available Value: {lowestAvailbleBpm}</Text>
-      <Button title="Search" onPress={handleBPmSearch} />
-      {storedTrackArr.current.length > tracks.length && (
-        <Button
-          title="Create Playlist"
-          onPress={async () => {
-            console.log('here! cmon!!');
-            handleCreatePlaylist();
-          }}
-        />
-      )}
-      <View>
-        <Text>all Track Items</Text>
-        {tracks.map(item => (
-          <View key={item.id} style={{flexDirection: 'row'}}>
-            <Image
-              source={{uri: item.thumbnail}}
-              style={{width: 100, aspectRatio: 1}}
-            />
-            <View style={{flexDirection: 'column'}}>
-              <Text>{item.name}</Text>
-              <Text>{item.artistNames}</Text>
-              <Text>{item.bpm}</Text>
+    <View>
+      <Modal
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
+        animationType="slide"
+        transparent={true}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View
+            style={{
+              padding: 20,
+              backgroundColor: 'white',
+              borderWidth: 1,
+              borderRadius: 20,
+              borderColor: 'gray',
+              width: '80%',
+            }}>
+            {/* <Text>Hello World</Text> */}
+            <View>
+              <Text>{createdPlaylist ? 'Playlist Created' : 'Creating'}</Text>
+              {createdPlaylist && (
+                <Button
+                  title="Open Spotify"
+                  onPress={() => {
+                    Linking.openURL(createdPlaylist.uri);
+                  }}
+                />
+              )}
             </View>
           </View>
-        ))}
-        <View style={{height: 100, width: 30, backgroundColor: 'blue'}} />
-      </View>
-    </ScrollView>
+        </View>
+      </Modal>
+      <ScrollView>
+        <Text>Select Songs of particular BPM</Text>
+        <TextInput
+          inputMode="decimal"
+          value={bpm.toString()}
+          onChangeText={text => {
+            setBpm(text);
+            if (text.length === 0) {
+              setBpm('');
+            }
+          }}
+        />
+        <Text>Highest Available Value: {highestAvailbleBpm}</Text>
+        <Text>Lowest Available Value: {lowestAvailbleBpm}</Text>
+        <Button title="Search" onPress={handleBPmSearch} />
+        {storedTrackArr.current.length > tracks.length && (
+          <Button
+            title="Create Playlist"
+            onPress={async () => {
+              setIsModalVisible(true);
+              console.log('here! cmon!!');
+              handleCreatePlaylist();
+            }}
+          />
+        )}
+        <Button
+          title="rough"
+          onPress={() => setIsModalVisible(!isModalVisible)}
+        />
+        <View>
+          <Text>all Track Items</Text>
+          {tracks.map(item => (
+            <View key={item.id} style={{flexDirection: 'row'}}>
+              <Image
+                source={{uri: item.thumbnail}}
+                style={{width: 100, aspectRatio: 1}}
+              />
+              <View style={{flexDirection: 'column'}}>
+                <Text>{item.name}</Text>
+                <Text>{item.artistNames}</Text>
+                <Text>{item.bpm}</Text>
+              </View>
+            </View>
+          ))}
+          <View style={{height: 100, width: 30, backgroundColor: 'blue'}} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
