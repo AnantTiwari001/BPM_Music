@@ -156,3 +156,70 @@ export async function getCurrentUserId(accessToken: string) {
     return undefined;
   }
 }
+
+export async function createPlaylist(accessToken: string, userId: string) {
+  const url = `https://api.spotify.com/v1/users/${userId}/playlists`;
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: 'New Playlist',
+        description: 'New playlist description',
+        public: false,
+      }),
+    });
+    if (response.ok) {
+      const responseObj = await response.json();
+      return {
+        id: responseObj.id,
+        name: responseObj.name,
+        uri: responseObj.uri,
+      } as {
+        name: string;
+        id: string;
+        uri: string;
+      };
+    }
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+}
+
+export async function addItemsToPlaylist(
+  accessToken: string,
+  playlistId: string,
+  uris: string[],
+) {
+  const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
+  const queryProps = new URLSearchParams({
+    uris: uris.join(','),
+  });
+  try {
+    const response = await fetch(`${url}?${queryProps}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uris: ['string'],
+        position: 0,
+      }),
+    });
+    if (response.ok) {
+      const responseObj = await response.json();
+      return responseObj;
+    } else {
+      console.error('add item to playlist: ', await response.json());
+    }
+    return response.status;
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+}
