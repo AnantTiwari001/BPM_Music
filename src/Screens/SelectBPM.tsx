@@ -3,7 +3,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useRef, useState} from 'react';
 import {
-  Button,
   Image,
   Linking,
   Modal,
@@ -15,6 +14,8 @@ import {
 import {LocalStorageKeys} from '../constants';
 import {TrackObject} from '../Types';
 import {addItemsToPlaylist, createPlaylist} from '../helpers/SpotifyApiCalls';
+import UIButton from '../components/Buttton';
+import Loading from '../components/Loading';
 
 const bpmBuffer = 30; // bpm +/- the target value is accepted
 
@@ -28,6 +29,7 @@ export default function SelectBPM() {
     {id: string; uri: string} | undefined
   >(undefined);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isOpeningSpotify, setIsOpeningSpotify] = useState(false);
   const handleBPmSearch = () => {
     console.log('filtering the item with not desired bpm');
     setTracks(
@@ -132,12 +134,16 @@ export default function SelectBPM() {
             {/* <Text>Hello World</Text> */}
             <View>
               <Text>{createdPlaylist ? 'Playlist Created' : 'Creating'}</Text>
+              {!createdPlaylist && <Loading size={30} />}
               {createdPlaylist && (
-                <Button
+                <UIButton
                   title="Open Spotify"
-                  onPress={() => {
-                    Linking.openURL(createdPlaylist.uri);
+                  onPress={async () => {
+                    setIsOpeningSpotify(true);
+                    await Linking.openURL(createdPlaylist.uri);
+                    setIsOpeningSpotify(false);
                   }}
+                  isLoading={{size: 25, visible: isOpeningSpotify}}
                 />
               )}
             </View>
@@ -158,9 +164,9 @@ export default function SelectBPM() {
         />
         <Text>Highest Available Value: {highestAvailbleBpm}</Text>
         <Text>Lowest Available Value: {lowestAvailbleBpm}</Text>
-        <Button title="Search" onPress={handleBPmSearch} />
+        <UIButton title="Search" onPress={handleBPmSearch} />
         {storedTrackArr.current.length > tracks.length && (
-          <Button
+          <UIButton
             title="Create Playlist"
             onPress={async () => {
               setIsModalVisible(true);
@@ -169,10 +175,6 @@ export default function SelectBPM() {
             }}
           />
         )}
-        <Button
-          title="rough"
-          onPress={() => setIsModalVisible(!isModalVisible)}
-        />
         <View>
           <Text>all Track Items</Text>
           {tracks.map(item => (
