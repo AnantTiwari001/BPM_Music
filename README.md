@@ -1,4 +1,4 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+This app solves a basic problem of quickly providing track from spotify favorited and playlisted songs with a particular bpm and then provide option to create a playlist from it and open in spotify, so that one can play it from there.
 
 # Getting Started
 
