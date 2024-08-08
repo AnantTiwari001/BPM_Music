@@ -16,11 +16,14 @@ import {TrackObject} from '../Types';
 import {addItemsToPlaylist, createPlaylist} from '../helpers/SpotifyApiCalls';
 import UIButton from '../components/Buttton';
 import Loading from '../components/Loading';
+import Slider from '@react-native-community/slider';
 
-const bpmBuffer = 30; // bpm +/- the target value is accepted
-
+const minimulBuffer = 5;
+const maximumBuffer = 35;
+const defaultBuffer = 20;
 export default function SelectBPM() {
-  const [bpm, setBpm] = useState('');
+  const [bpmBuffer, setBpmBuffer] = useState(defaultBuffer); // bpm +/- the target value is accepted
+  const [bpm, setBpm] = useState<number>();
   const [highestAvailbleBpm, setHighestAvailbleBpm] = useState(0);
   const [lowestAvailbleBpm, setLowestAvailbleBpm] = useState(0);
   const storedTrackArr = useRef<TrackObject[]>([]);
@@ -37,12 +40,6 @@ export default function SelectBPM() {
         item => Math.abs(item.bpm - parseInt(bpm)) < bpmBuffer,
       ),
     );
-    // for (let index = 0; index < storedTrackArr.current.length; index++) {
-    //   const trackItem = storedTrackArr.current[index];
-    //   if(Math.abs(trackItem.bpm - parseInt(bpm))< bpmBuffer){
-
-    //   }
-    // }
   };
   const getSavedTracks = async () => {
     const tracksString = await AsyncStorage.getItem(LocalStorageKeys.tracks);
@@ -61,6 +58,7 @@ export default function SelectBPM() {
     tempTracks.sort((a, b) => a.bpm - b.bpm);
     // console.log('sorted: ', tempTracks);
     setLowestAvailbleBpm(tempTracks[0].bpm);
+    setBpm(tempTracks[0].bpm);
     setHighestAvailbleBpm(tempTracks[tempTracks.length - 1].bpm);
   };
 
@@ -109,7 +107,7 @@ export default function SelectBPM() {
     getSavedTracks();
   }, []);
   return (
-    <View>
+    <View style={{flex: 1}}>
       <Modal
         visible={isModalVisible}
         onRequestClose={() => setIsModalVisible(false)}
@@ -152,16 +150,50 @@ export default function SelectBPM() {
       </Modal>
       <ScrollView>
         <Text>Select Songs of particular BPM</Text>
-        <TextInput
-          inputMode="decimal"
-          value={bpm.toString()}
-          onChangeText={text => {
-            setBpm(text);
-            if (text.length === 0) {
-              setBpm('');
-            }
-          }}
-        />
+        <View style={{margin: 5}}>
+          <Text>Buffer: </Text>
+          <Text style={{color: 'gray', fontSize: 12}}>
+            Higher the value more track for a bpm
+          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Text>{minimulBuffer}</Text>
+            <Slider
+              onValueChange={value => {
+                setBpmBuffer(value);
+              }}
+              value={bpmBuffer}
+              style={{width: 100, height: 40}}
+              minimumValue={minimulBuffer}
+              maximumValue={maximumBuffer}
+              minimumTrackTintColor="#FFFFFF"
+              maximumTrackTintColor="#000000"
+            />
+            <Text>{maximumBuffer}</Text>
+          </View>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginHorizontal: 20,
+          }}>
+          <Text>{lowestAvailbleBpm}</Text>
+          <View style={{alignItems: 'center'}}>
+            {bpm && <Text>{bpm}</Text>}
+            <Slider
+              style={{width: 200, height: 40}}
+              onValueChange={value => {
+                console.log(value);
+                setBpm(value);
+              }}
+              minimumValue={Math.floor(lowestAvailbleBpm)}
+              maximumValue={Math.floor(highestAvailbleBpm)}
+              minimumTrackTintColor="#FFFFFF"
+              maximumTrackTintColor="#000000"
+            />
+          </View>
+          <Text>{highestAvailbleBpm}</Text>
+        </View>
         <Text>Highest Available Value: {highestAvailbleBpm}</Text>
         <Text>Lowest Available Value: {lowestAvailbleBpm}</Text>
         <UIButton title="Search" onPress={handleBPmSearch} />
@@ -190,7 +222,6 @@ export default function SelectBPM() {
               </View>
             </View>
           ))}
-          <View style={{height: 100, width: 30, backgroundColor: 'blue'}} />
         </View>
       </ScrollView>
     </View>
