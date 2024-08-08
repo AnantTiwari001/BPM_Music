@@ -54,7 +54,7 @@ function App(): React.JSX.Element {
     };
   }, []);
   return (
-    <View>
+    <View style={{flex: 1}}>
       <Text>Hello World</Text>
       <LoginScreen />
       {/* <FetchUserTracks /> */}
