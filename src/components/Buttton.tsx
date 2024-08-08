@@ -1,15 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {Text, TouchableOpacity, ViewStyle} from 'react-native';
 import {colorSchemas} from '../constants';
+import Loading from './Loading';
 
 export default function UIButton({
-  title,
+  children,
   color = 'primary',
   onPress,
   overrideStyle,
 }: {
-  title: string;
+  children: ReactNode;
   color?: keyof typeof colorSchemas;
   onPress?: () => void;
   overrideStyle?: ViewStyle;
@@ -28,7 +29,7 @@ export default function UIButton({
         },
         overrideStyle,
       ]}>
-      <Text style={{color: 'white'}}>{title}</Text>
+      {children}
     </TouchableOpacity>
   );
 }
