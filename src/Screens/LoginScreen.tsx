@@ -1,9 +1,7 @@
 import React from 'react';
-import {Button, Linking, Text, View} from 'react-native';
-import {
-  generateSpotifyAuthUri,
-  getSpotifyTokensFromCode,
-} from '../helpers/auth';
+import {Linking, Text, View} from 'react-native';
+import {generateSpotifyAuthUri} from '../helpers/auth';
+import UIButton from '../components/Buttton';
 
 export default function LoginScreen() {
   const handleLogin = () => {
@@ -14,7 +12,7 @@ export default function LoginScreen() {
   return (
     <View>
       <Text>Login in to Spotify</Text>
-      <Button title="Login" onPress={handleLogin} />
+      <UIButton title="Login" onPress={handleLogin} />
     </View>
   );
 }
