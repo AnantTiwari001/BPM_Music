@@ -1,5 +1,8 @@
 This app solves a basic problem of quickly providing track from spotify favorited and playlisted songs with a particular bpm and then provide option to create a playlist from it and open in spotify, so that one can play it from there.
 
+## Credit
+Got idea for this app from [here](https://aayushg.com/ideas)
+
 # Getting Started
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
