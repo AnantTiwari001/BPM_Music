@@ -1,7 +1,9 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {Linking, Text, View} from 'react-native';
 import {generateSpotifyAuthUri} from '../helpers/auth';
 import UIButton from '../components/Buttton';
+import Loading from '../components/Loading';
 
 export default function LoginScreen() {
   const handleLogin = () => {
@@ -12,7 +14,7 @@ export default function LoginScreen() {
   return (
     <View>
       <Text>Login in to Spotify</Text>
-      <UIButton title="Login" onPress={handleLogin} />
+      <UIButton title="Login to spotify" onPress={handleLogin} />
     </View>
   );
 }

@@ -1,19 +1,21 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {ReactNode} from 'react';
+import React from 'react';
 import {Text, TouchableOpacity, ViewStyle} from 'react-native';
 import {colorSchemas} from '../constants';
 import Loading from './Loading';
 
 export default function UIButton({
-  children,
+  title,
   color = 'primary',
   onPress,
   overrideStyle,
+  isLoading = {visible: false, size: 20},
 }: {
-  children: ReactNode;
+  title: string;
   color?: keyof typeof colorSchemas;
   onPress?: () => void;
   overrideStyle?: ViewStyle;
+  isLoading?: {visible: boolean; size: number};
 }) {
   return (
     <TouchableOpacity
@@ -26,10 +28,13 @@ export default function UIButton({
           paddingHorizontal: 20,
           alignSelf: 'flex-start',
           borderRadius: 13,
+          flexDirection: 'row',
+          alignItems: 'center',
         },
         overrideStyle,
       ]}>
-      {children}
+      <Text style={{color: 'white'}}>{title}</Text>
+      {isLoading.visible && <Loading size={isLoading.size} />}
     </TouchableOpacity>
   );
 }
