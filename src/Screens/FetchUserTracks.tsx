@@ -105,6 +105,11 @@ export default function FetchUserTracks() {
     tempAppState.isLoggedIn = false;
     setState(tempAppState);
   };
+  const updateAppStateForTracks = () => {
+    const tempAppState = {...state};
+    tempAppState.savedTracks.isInitial = false;
+    setState(tempAppState);
+  };
   return (
     <View>
       <Text>pulling all favorite and playlisted track from spotify</Text>
