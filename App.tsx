@@ -37,6 +37,7 @@ function App(): React.JSX.Element {
           LocalStorageKeys.spotifyAcessToken,
           authObject.access_token,
         );
+        setAppState(pre => ({...pre, isLoggedIn: true}));
       }
       storeUserId(authObject.access_token);
     }
