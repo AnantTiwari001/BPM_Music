@@ -1,6 +1,6 @@
 //The page here is basically a loading page which shows a loading icon while fetching
 // user's favorited and playlisted tracks along with the bpm for each of them
-import React from 'react';
+import React, {useState} from 'react';
 import {Button, Text, View} from 'react-native';
 import {
   GetSpotifyFavoriteSongs,
@@ -12,11 +12,15 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {LocalStorageKeys} from '../constants';
 import {TrackObject} from '../Types';
+import UIButton from '../components/Buttton';
+import Loading from '../components/Loading';
 
 export default function FetchUserTracks() {
+  const [isFetching, setIsFetching] = useState(false);
   const TrackPromiseArr: Promise<TrackObject>[] = [];
   const tracksArr: TrackObject[] = [];
   async function getSpotifyTrackWithbpm() {
+    setIsFetching(true);
     const spotifyAcessToken = await AsyncStorage.getItem(
       LocalStorageKeys.spotifyAcessToken,
     );
@@ -62,6 +66,7 @@ export default function FetchUserTracks() {
       Promise.all(TrackPromiseArr).then(() => {
         console.info('done all! Saving the Tracks to Store');
         setTracksToStore(tracksArr);
+        setIsFetching(false);
       });
     });
   }
@@ -91,13 +96,14 @@ export default function FetchUserTracks() {
   return (
     <View>
       <Text>pulling all favorite and playlisted track from spotify</Text>
-      <Button
-        title="get playlist"
+      <UIButton
+        title="Get all Saved Tracks"
         onPress={() => {
           console.log('here!!');
           getSpotifyTrackWithbpm();
         }}
       />
+      {isFetching && <Loading size={45} />}
     </View>
   );
 }
