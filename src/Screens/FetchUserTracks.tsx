@@ -17,7 +17,7 @@ import Loading from '../components/Loading';
 import {AppContext} from '../hooks/MyContext';
 
 export default function FetchUserTracks() {
-  const {state} = useContext(AppContext);
+  const {state, setState} = useContext(AppContext);
   const isInitialTrackFetch = state.savedTracks.isInitial;
   const [isFetching, setIsFetching] = useState(false);
   const TrackPromiseArr: Promise<TrackObject>[] = [];
@@ -36,6 +36,7 @@ export default function FetchUserTracks() {
       GetSpotifyFavoriteSongs(spotifyAcessToken, 50).then(result => {
         if (!result) {
           console.error('error fetching liked songs');
+          setLoginStateOnFail();
           return undefined;
         }
         for (let index = 0; index < result.items.length; index++) {
@@ -50,6 +51,7 @@ export default function FetchUserTracks() {
         // console.log(result);
         if (!result) {
           console.error('error fetching playlists');
+          setLoginStateOnFail();
           return undefined;
         }
         for (let index = 0; index < result.length; index++) {
@@ -97,6 +99,11 @@ export default function FetchUserTracks() {
   const setTracksToStore = async (newtracksArr: TrackObject[]) => {
     const stringifiedTrackArr = JSON.stringify(newtracksArr);
     await AsyncStorage.setItem(LocalStorageKeys.tracks, stringifiedTrackArr);
+  };
+  const setLoginStateOnFail = () => {
+    const tempAppState = {...state};
+    tempAppState.isLoggedIn = false;
+    setState(tempAppState);
   };
   return (
     <View>
