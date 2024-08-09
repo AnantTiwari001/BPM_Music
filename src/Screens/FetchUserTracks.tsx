@@ -1,6 +1,6 @@
 //The page here is basically a loading page which shows a loading icon while fetching
 // user's favorited and playlisted tracks along with the bpm for each of them
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Button, Text, View} from 'react-native';
 import {
   GetSpotifyFavoriteSongs,
@@ -14,8 +14,11 @@ import {LocalStorageKeys} from '../constants';
 import {TrackObject} from '../Types';
 import UIButton from '../components/Buttton';
 import Loading from '../components/Loading';
+import {AppContext} from '../hooks/MyContext';
 
 export default function FetchUserTracks() {
+  const {state} = useContext(AppContext);
+  const isInitialTrackFetch = state.savedTracks.isInitial;
   const [isFetching, setIsFetching] = useState(false);
   const TrackPromiseArr: Promise<TrackObject>[] = [];
   const tracksArr: TrackObject[] = [];
@@ -99,7 +102,9 @@ export default function FetchUserTracks() {
     <View>
       <Text>pulling all favorite and playlisted track from spotify</Text>
       <UIButton
-        title="Get all Saved Tracks"
+        title={
+          isInitialTrackFetch ? 'Get all Saved Tracks' : 'Refresh Saved Tracks'
+        }
         onPress={() => {
           console.log('here!!');
           getSpotifyTrackWithbpm();
