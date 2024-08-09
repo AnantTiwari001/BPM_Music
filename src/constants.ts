@@ -12,3 +12,10 @@ export const colorSchemas = {
   danger: '#dc3545',
   warning: '#ffc107',
 };
+
+export const initialAppState = {
+  isLoggedIn: false,
+  savedTracks: {
+    isInitial: false,
+  },
+};
