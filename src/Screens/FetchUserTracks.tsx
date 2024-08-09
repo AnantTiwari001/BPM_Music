@@ -65,7 +65,9 @@ export default function FetchUserTracks() {
       console.log(TrackPromiseArr);
       Promise.all(TrackPromiseArr).then(() => {
         console.info('done all! Saving the Tracks to Store');
-        setTracksToStore(tracksArr);
+        if (tracksArr.length > 0) {
+          setTracksToStore(tracksArr);
+        }
         setIsFetching(false);
       });
     });
