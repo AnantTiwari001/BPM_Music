@@ -5,16 +5,19 @@
  * @format
  */
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Linking, Text, View} from 'react-native';
 import LoginScreen from './src/Screens/LoginScreen';
 import {getCodeFromUri, getSpotifyTokensFromCode} from './src/helpers/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {LocalStorageKeys} from './src/constants';
+import {initialAppState, LocalStorageKeys} from './src/constants';
 import SelectBPM from './src/Screens/SelectBPM';
 import {getCurrentUserId} from './src/helpers/SpotifyApiCalls';
+import FetchUserTracks from './src/Screens/FetchUserTracks';
+import {AppContext} from './src/hooks/MyContext';
 
 function App(): React.JSX.Element {
+  const [appState, setAppState] = useState(initialAppState);
   // DeepLinking / app opened with link
   Linking.addEventListener('url', async event => {
     console.log('app callback !!!');
@@ -48,18 +51,37 @@ function App(): React.JSX.Element {
     console.log('userId: ', userId);
     AsyncStorage.setItem(LocalStorageKeys.userId, userId);
   };
+  const getInitialApplicationState = async () => {
+    const tempState = {...initialAppState};
+    const savedTracksString = await AsyncStorage.getItem(
+      LocalStorageKeys.tracks,
+    );
+    if (
+      !savedTracksString ||
+      (await JSON.parse(savedTracksString)).length < 1
+    ) {
+      console.log('There is no track in cache');
+      tempState.savedTracks.isInitial = true;
+    }
+
+    setAppState(tempState);
+  };
   useEffect(() => {
+    getInitialApplicationState();
     return () => {
       Linking.removeAllListeners('url');
     };
   }, []);
   return (
-    <View style={{flex: 1}}>
-      <Text>Hello World</Text>
-      <LoginScreen />
-      {/* <FetchUserTracks /> */}
-      <SelectBPM />
-    </View>
+    <AppContext.Provider
+      value={{state: appState, setState: newState => setAppState(newState)}}>
+      <View style={{flex: 1}}>
+        <Text>Hello World</Text>
+        <LoginScreen />
+        <FetchUserTracks />
+        <SelectBPM />
+      </View>
+    </AppContext.Provider>
   );
 }
 
